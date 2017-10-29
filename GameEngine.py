@@ -152,10 +152,11 @@ class LoyalVictory(GameStep):
 
 def runGame():
 	players = []
-	for i in range(5):
-		players.append(MonkeyPlayer("Player " + str(i + 1)))
+	for i in range(4):
+		players.append(MonkeyPlayer("Player " + str(i)))
+	players.append(HumanPlayer("Human"))
 	aGame = GameStep(players)
-	aGame.setVerbose(True)
+	aGame.setVerbose(False)
 	while not aGame.gameEnded():
 		aGame = aGame.nextStep()
 
