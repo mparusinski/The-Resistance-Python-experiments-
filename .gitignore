@@ -408,3 +408,10 @@ paket-files/
 
 # End of https://www.gitignore.io/api/python,visualstudio,visualstudiocode
 
+# VisualStudioCode files
+.vscode/*
+.vscode
+
+#VisualSudio files
+*.pyproj
+*.sln
