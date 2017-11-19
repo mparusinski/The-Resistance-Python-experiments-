@@ -41,6 +41,9 @@ class GameStep(object): # or start
 	def gameEnded(self):
 		return self.spy_victory or self.loyal_victory
 
+	def isSpyVictory(self):
+		return self.spy_victory
+
 	def setVerbose(self, verbosity):
 		self.verbose = verbosity
 
@@ -152,13 +155,17 @@ class LoyalVictory(GameStep):
 
 def runGame():
 	players = []
-	for i in range(4):
+	for i in range(5):
 		players.append(MonkeyPlayer("Player " + str(i)))
-	players.append(HumanPlayer("Human"))
-	aGame = GameStep(players)
-	aGame.setVerbose(False)
-	while not aGame.gameEnded():
-		aGame = aGame.nextStep()
+	spyVict = 0
+	for i in range(100):
+		aGame = GameStep(players)
+		aGame.setVerbose(False)
+		while not aGame.gameEnded():
+			aGame = aGame.nextStep()
+		if aGame.isSpyVictory():
+			spyVict = spyVict + 1
+	print("Out of 100 games, spies won " + str(spyVict) + " times")
 
 def main():
 	runGame()
