@@ -48,8 +48,8 @@ class ProxiedPlayer(Player):
     def selectMission(self, players, numOfPlayersRequired):
         return self.proxy_select_mission(players, numOfPlayersRequired)
 
-    def voteOnMission(self):
-        return self.proxy_vote_on_mission()
+    def voteOnMission(self, mission):
+        return self.proxy_vote_on_mission(mission)
 
     def sabotageMission(self):
         return self.proxy_sabotage_mission()

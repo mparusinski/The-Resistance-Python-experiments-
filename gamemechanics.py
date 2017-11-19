@@ -3,6 +3,10 @@ from Player import Player, MonkeyPlayer
 
 PLAYERS_PER_MISSION = [2, 3, 2, 3, 3]
 
+def default_spy_selection_process():
+    randomGen = random.Random(0)
+    return randomGen.sample(range(5), 2)
+
 # Represent a game at a given step
 class GameState(object): # or start
 
@@ -17,8 +21,9 @@ class GameState(object): # or start
         self.loyal_victory = False
         self.spies = []
         self.verbose = False
+        self.spy_selection_process = default_spy_selection_process
 
-    def next_step(self):
+    def next_state(self):
         return SpiesSelection(self)
 
     def get_current_leader(self):
@@ -30,8 +35,11 @@ class GameState(object): # or start
     def game_ended(self):
         return self.spy_victory or self.loyal_victory
 
-    def isSpyVictory(self):
+    def is_spy_victory(self):
         return self.spy_victory
+
+    def is_loyal_victory(self):
+        return self.loyal_victory
 
     def set_verbose(self, verbosity):
         self.verbose = verbosity
@@ -42,18 +50,21 @@ class GameState(object): # or start
     def log_message(self, message):
         if self.verbose:
             print(message)
+        
+    def set_spy_selection_process(self, spy_selection_func):
+        self.spy_selection_process = spy_selection_func
 
 
 class SpiesSelection(GameState):
 
     def __init__(self, previous):
         self.__dict__ = dict(previous.__dict__)
-        self.spies = random.sample(range(5), 2)
+        self.spies = self.spy_selection_process()
         for i in self.spies:
             self.log_message("Player " + str(i + 1) + " is a spy")
             self.players[i].assignSpyRole(self.spies)
 
-    def next_step(self):
+    def next_state(self):
         return MissionSelection(self)
 
 
@@ -63,7 +74,7 @@ class MissionSelection(GameState):
     def __init__(self, previous):
         self.__dict__ = dict(previous.__dict__)
 
-    def next_step(self):
+    def next_state(self):
         currentLeader = self.get_current_leader()
         mission = currentLeader.selectMission(self.players, PLAYERS_PER_MISSION[self.currentMission])
         retStr = "In mission"
@@ -79,7 +90,7 @@ class MissionProposal(GameState):
         self.__dict__ = dict(previous.__dict__)
         self.mission = mission
 
-    def next_step(self):
+    def next_state(self):
         favor = 0
         oppose = 0
         for player in self.players:
@@ -107,7 +118,7 @@ class MissionExecution(GameState):
         self.__dict__ = dict(previous.__dict__)
         self.mission = mission
 
-    def next_step(self):
+    def next_state(self):
         failure = False
         for player in self.mission:
             if player.isSpy() and player.sabotageMission():
@@ -151,10 +162,13 @@ def runGame():
         aGame = GameState(players)
         aGame.set_verbose(False)
         while not aGame.game_ended():
-            aGame = aGame.next_step()
-        if aGame.isSpyVictory():
+            aGame = aGame.next_state()
+        if aGame.is_spy_victory():
             spyVict = spyVict + 1
     print("Out of 100 games, spies won " + str(spyVict) + " times")
 
+def main():
+    runGame()
+
 if __name__ == '__main__':
-    pass
+    main()
