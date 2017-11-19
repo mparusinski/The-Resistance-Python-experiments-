@@ -1,17 +1,10 @@
-# Mission = [Players]
-# 
-# GameStep = MissionSelection
-#          | MissionProposal Mission
-#          | MissionExecution Mission
-#		   | SpyVictory | LoyalVictory
-
 import random
 from Player import Player, MonkeyPlayer
 
 PLAYERS_PER_MISSION = [2, 3, 2, 3, 3]
 
 # Represent a game at a given step
-class GameStep(object): # or start
+class GameState(object): # or start
 
     def __init__(self, players):
         self.spy_successes = 0
@@ -20,7 +13,6 @@ class GameStep(object): # or start
         self.currentMission = 0
         self.players = players
         self.current_leader_pos = 0
-        self.num_of_players = len(players)
         self.spy_victory = False
         self.loyal_victory = False
         self.spies = []
@@ -33,7 +25,7 @@ class GameStep(object): # or start
         return self.players[self.current_leader_pos]
 
     def next_leader(self):
-        self.current_leader_pos = (self.current_leader_pos + 1) % self.num_of_players
+        self.current_leader_pos = (self.current_leader_pos + 1) % len(self.players)
 
     def game_ended(self):
         return self.spy_victory or self.loyal_victory
@@ -52,7 +44,7 @@ class GameStep(object): # or start
             print(message)
 
 
-class SpiesSelection(GameStep):
+class SpiesSelection(GameState):
 
     def __init__(self, previous):
         self.__dict__ = dict(previous.__dict__)
@@ -66,7 +58,7 @@ class SpiesSelection(GameStep):
 
 
 
-class MissionSelection(GameStep):
+class MissionSelection(GameState):
 
     def __init__(self, previous):
         self.__dict__ = dict(previous.__dict__)
@@ -81,7 +73,7 @@ class MissionSelection(GameStep):
         return MissionProposal(self, mission)
 
 
-class MissionProposal(GameStep):
+class MissionProposal(GameState):
 
     def __init__(self, previous, mission):
         self.__dict__ = dict(previous.__dict__)
@@ -109,7 +101,7 @@ class MissionProposal(GameStep):
             return MissionSelection(self)
 
 
-class MissionExecution(GameStep):
+class MissionExecution(GameState):
 
     def __init__(self, previous, mission):
         self.__dict__ = dict(previous.__dict__)
@@ -136,14 +128,14 @@ class MissionExecution(GameStep):
         self.nextMission()
         return MissionSelection(self)
 
-class SpyVictory(GameStep):
+class SpyVictory(GameState):
 
     def __init__(self, previous):
         self.__dict__ = dict(previous.__dict__)
         self.spy_victory = True
 
 
-class LoyalVictory(GameStep):
+class LoyalVictory(GameState):
 
     def __init__(self, previous):
         self.__dict__ = dict(previous.__dict__)
@@ -156,7 +148,7 @@ def runGame():
         players.append(MonkeyPlayer("Player " + str(i)))
     spyVict = 0
     for i in range(100):
-        aGame = GameStep(players)
+        aGame = GameState(players)
         aGame.set_verbose(False)
         while not aGame.game_ended():
             aGame = aGame.next_step()
@@ -164,8 +156,5 @@ def runGame():
             spyVict = spyVict + 1
     print("Out of 100 games, spies won " + str(spyVict) + " times")
 
-def main():
-    runGame()
-
 if __name__ == '__main__':
-    main()
+    pass
