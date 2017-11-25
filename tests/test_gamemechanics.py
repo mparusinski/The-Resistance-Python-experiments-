@@ -1,6 +1,6 @@
 import unittest
 from gamemechanics import *
-from Player import ProxiedPlayer
+from player import ProxiedPlayer
 
 def generateProxiedPlayers():
     players = list(map(lambda x: ProxiedPlayer("Player " + str(x + 1)), range(5)))

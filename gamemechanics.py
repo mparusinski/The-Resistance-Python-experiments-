@@ -1,5 +1,5 @@
 import random
-from Player import Player, MonkeyPlayer
+from player import MonkeyPlayer
 
 PLAYERS_PER_MISSION = [2, 3, 2, 3, 3]
 
@@ -14,7 +14,7 @@ class GameState(object): # or start
         self.spy_successes = 0
         self.loyal_successes = 0
         self.cumulated_rejections = 0
-        self.currentMission = 0
+        self.current_mission = 0
         self.players = players
         self.current_leader_pos = 0
         self.spy_victory = False
@@ -45,7 +45,7 @@ class GameState(object): # or start
         self.verbose = verbosity
 
     def nextMission(self):
-        self.currentMission = self.currentMission + 1
+        self.current_mission = self.current_mission + 1
 
     def log_message(self, message):
         if self.verbose:
@@ -62,7 +62,7 @@ class SpiesSelection(GameState):
         self.spies = self.spy_selection_process()
         for i in self.spies:
             self.log_message("Player " + str(i + 1) + " is a spy")
-            self.players[i].assignSpyRole(self.spies)
+            self.players[i].assign_spy_role(self.spies)
 
     def next_state(self):
         return MissionSelection(self)
@@ -75,12 +75,12 @@ class MissionSelection(GameState):
         self.__dict__ = dict(previous.__dict__)
 
     def next_state(self):
-        currentLeader = self.get_current_leader()
-        mission = currentLeader.selectMission(self.players, PLAYERS_PER_MISSION[self.currentMission])
-        retStr = "In mission"
+        current_leader = self.get_current_leader()
+        mission = current_leader.select_mission(self.players, PLAYERS_PER_MISSION[self.current_mission])
+        ret_str = "In mission"
         for player in mission:
-            retStr = retStr + " " + player.getPlayerName()
-        self.log_message(retStr)
+            ret_str = ret_str + " " + player.get_player_name()
+        self.log_message(ret_str)
         return MissionProposal(self, mission)
 
 
@@ -94,7 +94,7 @@ class MissionProposal(GameState):
         favor = 0
         oppose = 0
         for player in self.players:
-            vote = player.voteOnMission(self.mission)
+            vote = player.vote_on_mission(self.mission)
             if vote:
                 favor = favor + 1
             else:
@@ -121,7 +121,7 @@ class MissionExecution(GameState):
     def next_state(self):
         failure = False
         for player in self.mission:
-            if player.isSpy() and player.sabotageMission():
+            if player.is_spy() and player.sabotage_mission():
                 failure = True
         if failure:
             self.log_message("Mission was sabotaged")
@@ -153,22 +153,22 @@ class LoyalVictory(GameState):
         self.loyal_victory = True
 
 
-def runGame():
+def run_game():
     players = []
     for i in range(5):
         players.append(MonkeyPlayer("Player " + str(i)))
-    spyVict = 0
+    spy_vict = 0
     for i in range(100):
-        aGame = GameState(players)
-        aGame.set_verbose(False)
-        while not aGame.game_ended():
-            aGame = aGame.next_state()
-        if aGame.is_spy_victory():
-            spyVict = spyVict + 1
-    print("Out of 100 games, spies won " + str(spyVict) + " times")
+        a_game = GameState(players)
+        a_game.set_verbose(False)
+        while not a_game.game_ended():
+            a_game = a_game.next_state()
+        if a_game.is_spy_victory():
+            spy_vict = spy_vict + 1
+    print("Out of 100 games, spies won " + str(spy_vict) + " times")
 
 def main():
-    runGame()
+    run_game()
 
 if __name__ == '__main__':
     main()
